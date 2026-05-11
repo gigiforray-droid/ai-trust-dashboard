@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Trust Index — Live Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#0a0a0a;--bg2:#111;--bg3:#191919;--border:#2a2a2a;--border2:#3a3a3a;--green:#4ade80;--green2:#22c55e;--green3:#16a34a;--green4:#15803d;--green-dim:#166534;--green-soft:rgba(74,222,128,.07);--amber:#fbbf24;--red:#fb7185;--blue:#60a5fa;--text:#e8e8e8;--text2:#999;--text3:#666;--mono:'DM Mono',monospace;--serif:'DM Serif Display',serif}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.7;min-height:100vh}body:before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;opacity:.13;pointer-events:none;z-index:0}.wrap{max-width:1200px;margin:auto;padding:36px 22px;position:relative;z-index:1}header{border-bottom:1px solid var(--border);padding-bottom:26px;margin-bottom:24px}.tag{color:var(--green);font-size:11px;text-transform:uppercase;letter-spacing:.15em;margin-bottom:14px;display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;box-shadow:0 0 8px rgba(251,113,133,.4)}.dot.on{background:var(--green);box-shadow:0 0 8px rgba(74,222,128,.7)}h1{font-family:var(--serif);font-size:clamp(32px,5vw,58px);font-weight:400;line-height:1.05}h1 em{color:var(--green)}.lead{max-width:850px;color:var(--text2);margin-top:14px}.panel,.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px}.panel{padding:18px;margin:20px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.card{padding:16px}.card-label{font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.big{font-family:var(--serif);font-size:40px;color:var(--text);line-height:1}.sub{font-size:12px;color:var(--text3);margin-top:6px}.section-title{font-family:var(--serif);font-size:28px;font-weight:400;margin:28px 0 12px}.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:850px){.chart-grid{grid-template-columns:1fr}}.bar-row{display:grid;grid-template-columns:170px 1fr 60px;gap:10px;align-items:center;margin:10px 0}.bar-label{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis}.track{height:9px;background:var(--border);border-radius:20px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));border-radius:20px;box-shadow:0 0 8px rgba(74,222,128,.35)}.value{text-align:right;font-size:12px;color:var(--green)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:top}th{color:var(--text3);font-weight:400;text-transform:uppercase;font-size:10px;letter-spacing:.08em}td{color:var(--text2)}.note{color:var(--text3);font-size:12px;margin-top:10px}.warn{border-left:2px solid var(--amber);padding-left:12px;color:var(--text2)}.ok{border-left:2px solid var(--green);padding-left:12px;color:var(--text2)}.btn{font-family:var(--mono);font-size:12px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text2);padding:10px 14px;cursor:pointer;margin-right:8px}.btn:hover{border-color:var(--green);color:var(--green)}.btn.primary{background:var(--green);color:#000;border-color:var(--green);font-weight:500}.pill{display:inline-block;padding:3px 8px;border:1px solid var(--border);border-radius:999px;color:var(--green);font-size:10px;margin:3px 4px 0 0}.small{font-size:11px;color:var(--text3)}.explain{margin-top:16px;padding:14px 16px;background:var(--green-soft);border:1px solid rgba(74,222,128,.15);border-left:2px solid var(--green);border-radius:6px;color:var(--text2);font-size:12px;line-height:1.75}.explain strong{color:var(--green);font-weight:500}.chart-box{height:315px;position:relative}.chart-box canvas{max-height:315px}.legend-note{font-size:11px;color:var(--text3);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="tag"><span class="dot" id="statusDot"></span><span id="statusText">Kapcsolódás a live adatbázishoz...</span></div>
+  <h1>Live AI Trust <em>Analytics</em></h1>
+  <p class="lead">Ez az admin oldal élőben követi a fő kérdőív kitöltéseit. Nincs fájlkiválasztás: amint valaki kitölti az AI Trust Indexet, az eredmény automatikusan megjelenik itt.</p>
+  <p class="note">Mérőlink: <strong>https://agent-6a008de576ca2--incandescent-maamoul-41e476.netlify.app/</strong></p>
+</header>
+
+<div class="panel" id="setupBox">
+  <p class="warn"><strong>Beállítás szükséges:</strong> ugyanazt a Firebase konfigurációt kell bemásolni ebbe az admin fájlba és a kérdőív index.html fájlba. GitHub Pages önmagában nem tud adatot menteni, ehhez kell egy külső, ingyenes adatbázis, például Firebase Realtime Database.</p>
+</div>
+
+<section class="grid" id="kpis"></section>
+
+<h2 class="section-title">Átlagos dimenzióértékek</h2>
+<div class="panel" id="avgChart"></div>
+<div class="explain">
+  <strong>Az oszlopdiagram értelmezése:</strong> az egyes dimenziók 1–4-es skálán jelennek meg. A magasabb érték nem minden esetben jelent „jobb" eredményt: például a kompetencia-bizalom, kalibrálás és forrásellenőrzés esetén kedvezőbb, míg az AI-szorongás vagy etikai aggodalom magas értéke inkább fokozott óvatosságot jelez.
+</div>
+
+<h2 class="section-title">Profilmegoszlás</h2>
+<div class="chart-grid">
+  <div class="panel">
+    <div id="profileChart"></div>
+    <div class="explain">
+      <strong>Az oszlopdiagram jelentése:</strong> azt mutatja, hogy hány kitöltő került az egyes AI-bizalom profilokba. Ez segít gyorsan látni, hogy a csoport inkább nyitott, óvatos, kritikus vagy túlbízó attitűddel közelít-e a generatív AI-hoz.
+    </div>
+  </div>
+  <div class="panel">
+    <div class="card-label">Profilok aránya kördiagramon</div>
+    <div class="chart-box"><canvas id="profilePie"></canvas></div>
+    <p class="legend-note">A kördiagram ugyanazt a profilmegoszlást mutatja arányosan, zöld árnyalatokkal.</p>
+    <div class="explain">
+      <strong>A kördiagram jelentése:</strong> nem darabszámot, hanem arányt emel ki. Prezentációnál ez látványosabban mutatja, melyik AI-bizalom típus dominál a kitöltők között.
+    </div>
+  </div>
+</div>
+
+<h2 class="section-title">Kockázati gyorsértékelés</h2>
+<div class="chart-grid">
+  <div class="panel" id="riskBox"></div>
+  <div class="panel">
+    <div class="card-label">Kockázati arányok</div>
+    <div class="chart-box"><canvas id="riskDoughnut"></canvas></div>
+    <div class="explain">
+      <strong>Magyarázat:</strong> a túlbizalmi kockázat akkor jelenik meg, ha magas a kompetencia- vagy használati bizalom, de alacsony a kalibrálás. Az etikai óvatosság magas AI-szorongásból vagy erős etikai aggodalomból következik.
+    </div>
+  </div>
+</div>
+
+<h2 class="section-title">Realtime Response Monitor</h2>
+<div class="panel"><table><thead><tr><th>Időpont</th><th>Profil</th><th>Kompetencia</th><th>Kalibrálás</th><th>Ellenőrzés</th><th>Etikai aggodalom</th><th>Forrás</th></tr></thead><tbody id="rows"></tbody></table></div>
+
+<h2 class="section-title">Besorolási logika</h2>
+<div class="grid">
+  <div class="card"><div class="card-label">Túlbízó Felhasználó</div><p class="small">Magas kompetencia- vagy használati pontszám, de alacsony kalibrálás. Szakirodalmi háttér: automation bias, overtrust, bizalomkalibrálás.</p><span class="pill">comp/use magas</span><span class="pill">calib alacsony</span></div>
+  <div class="card"><div class="card-label">Etikusan Óvatos</div><p class="small">Magas AI-szorongás vagy etikai aggodalom. Szakirodalmi háttér: trustworthy AI, adatvédelem, társadalmi kockázatok.</p><span class="pill">anx magas</span><span class="pill">eth magas</span></div>
+  <div class="card"><div class="card-label">Tudatos Szkeptikus</div><p class="small">Magas kalibrálás és erős forrásellenőrzés. Szakirodalmi háttér: calibrated trust, information literacy, explainability.</p><span class="pill">calib magas</span><span class="pill">verify magas</span></div>
+  <div class="card"><div class="card-label">Bizalmas Innovátor</div><p class="small">Magas használati hajlandóság és kompetencia-bizalom. Akkor kedvező, ha ellenőrzési szokások is társulnak hozzá.</p><span class="pill">use magas</span><span class="pill">comp magas</span></div>
+</div>
+
+<div class="panel"><button class="btn primary" onclick="exportCSV()">CSV export</button><button class="btn" onclick="exportJSON()">JSON export</button><button class="btn" onclick="clearLocalOnly()">Helyi nézet törlése</button><p class="note">Az export csak a dashboardban aktuálisan látható anonim adatokat menti le.</p></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// UGYANAZT A FIREBASE CONFIGOT MÁSOLD IDE, MINT AZ INDEX.HTML-BE
+const firebaseConfig = {
+  apiKey: "IDE_MASOLD_A_FIREBASE_APIKEY_ERTEKET",
+  authDomain: "IDE_MASOLD_A_FIREBASE_AUTHDOMAIN_ERTEKET",
+  databaseURL: "IDE_MASOLD_A_FIREBASE_DATABASEURL_ERTEKET",
+  projectId: "IDE_MASOLD_A_FIREBASE_PROJECTID_ERTEKET",
+  storageBucket: "IDE_MASOLD_A_FIREBASE_STORAGEBUCKET_ERTEKET",
+  messagingSenderId: "IDE_MASOLD_A_FIREBASE_MESSAGINGSENDERID_ERTEKET",
+  appId: "IDE_MASOLD_A_FIREBASE_APPID_ERTEKET"
+};
+const dims={comp:'Kompetencia-bizalom',rel:'Megbízhatóság',calib:'Kalibrálás',use:'Alkalmazási hajlandóság',anx:'AI-szorongás',trans:'Átláthatóság',eth:'Etikai aggodalom',verify:'Forrásellenőrzés',risk:'Kockázatészlelés',human:'Emberi szakértő preferencia',style:'Formahatás',uncert:'Bizonytalanság kezelése',learn:'Tanulási önállóság'};
+const greenPalette=['#4ade80','#22c55e','#16a34a','#15803d','#166534','#86efac','#bbf7d0','#14532d'];
+let data=[];
+let pieChart=null;
+let riskChart=null;
+
+Chart.defaults.color='#e8e8e8';
+Chart.defaults.borderColor='#2a2a2a';
+Chart.defaults.font.family="'DM Mono', monospace";
+
+function configured(){return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('IDE_') && firebaseConfig.databaseURL && !firebaseConfig.databaseURL.startsWith('IDE_')}
+function setStatus(ok,msg){document.getElementById('statusDot').classList.toggle('on',ok);document.getElementById('statusText').textContent=msg;document.getElementById('setupBox').style.display=ok?'none':'block'}
+function num(v){let n=parseFloat(String(v??'').replace(',','.'));return isNaN(n)?null:n}
+function val(row,k){return row.scores&&row.scores[k]!=null?row.scores[k]:row[k]}
+function avg(key){let arr=data.map(d=>num(val(d,key))).filter(v=>v!==null);return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null}
+function countBy(key){let m={};data.forEach(d=>{let v=d[key]||'Ismeretlen';m[v]=(m[v]||0)+1});return m}
+function bar(label,value,max=4){let pct=Math.max(0,Math.min(100,(value/max)*100));return `<div class="bar-row"><div class="bar-label" title="${label}">${label}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="value">${value.toFixed(2)}</div></div>`}
+function barCount(label,count,total){let pct=total?count/total*100:0;return `<div class="bar-row"><div class="bar-label" title="${label}">${label}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="value">${count}</div></div>`}
+function renderAll(){renderKpis();renderAvg();renderProfiles();renderRows()}
+function renderKpis(){let n=data.length,cal=avg('calib'),ver=avg('verify'),eth=avg('eth'),comp=avg('comp');document.getElementById('kpis').innerHTML=`<div class="card"><div class="card-label">Kitöltések száma</div><div class="big">${n}</div><div class="sub">élő adatbázisból</div></div><div class="card"><div class="card-label">Átlagos AI-bizalom</div><div class="big">${comp?comp.toFixed(2):'-'}</div><div class="sub">kompetencia-bizalom</div></div><div class="card"><div class="card-label">Kalibrálás</div><div class="big">${cal?cal.toFixed(2):'-'}</div><div class="sub">magasabb = tudatosabb</div></div><div class="card"><div class="card-label">Forrásellenőrzés</div><div class="big">${ver?ver.toFixed(2):'-'}</div><div class="sub">ellenőrzési hajlandóság</div></div><div class="card"><div class="card-label">Etikai aggodalom</div><div class="big">${eth?eth.toFixed(2):'-'}</div><div class="sub">kockázatérzékenység</div></div>`}
+function renderAvg(){document.getElementById('avgChart').innerHTML=Object.entries(dims).map(([k,l])=>{let a=avg(k);return a===null?'':bar(l,a)}).join('')||'<p class="note">Még nincs beérkezett kitöltés.</p>'}
+function renderProfiles(){
+  let m=countBy('profile'),total=data.length;
+  document.getElementById('profileChart').innerHTML=Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,c])=>barCount(k,c,total)).join('')||'<p class="note">Még nincs adat.</p>';
+  let labels=Object.keys(m), values=Object.values(m);
+  renderPie(labels,values);
+  let over=data.filter(d=>{let comp=num(val(d,'comp')),use=num(val(d,'use')),cal=num(val(d,'calib'));return ((comp>=3.3||use>=3.3)&&cal<=2)}).length;
+  let highEth=data.filter(d=>num(val(d,'eth'))>=3.4||num(val(d,'anx'))>=3.2).length;
+  document.getElementById('riskBox').innerHTML=`<div class="card-label">Gyors értelmezés</div><p class="lead">A csoportban <strong>${over}</strong> kitöltőnél látszik túlbizalmi kockázat, és <strong>${highEth}</strong> kitöltőnél magas etikai/szorongási érzékenység.</p>${barCount('Túlbizalmi kockázat',over,total)}${barCount('Etikai óvatosság',highEth,total)}<div class="explain"><strong>Az oszlopdiagram jelentése:</strong> ez nem diagnózis, hanem gyors figyelmeztető jelzés. A magas bizalom önmagában nem probléma, akkor válhat kockázatossá, ha nem társul hozzá ellenőrzés és tudatos kalibrálás.</div>`;
+  renderRiskDoughnut(over,highEth,Math.max(0,total-over-highEth));
+}
+function renderPie(labels,values){
+  const ctx=document.getElementById('profilePie');
+  if(pieChart){pieChart.destroy()}
+  if(!labels.length){return}
+  pieChart=new Chart(ctx,{type:'pie',data:{labels,datasets:[{data:values,backgroundColor:labels.map((_,i)=>greenPalette[i%greenPalette.length]),borderColor:'#0a0a0a',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#e8e8e8',boxWidth:12,padding:12}},tooltip:{callbacks:{label:(c)=>`${c.label}: ${c.raw} kitöltő`}}}}});
+}
+function renderRiskDoughnut(over,highEth,other){
+  const ctx=document.getElementById('riskDoughnut');
+  if(riskChart){riskChart.destroy()}
+  riskChart=new Chart(ctx,{type:'doughnut',data:{labels:['Túlbizalmi kockázat','Etikai óvatosság','Egyéb / kiegyensúlyozott'],datasets:[{data:[over,highEth,other],backgroundColor:['#4ade80','#22c55e','#166534'],borderColor:'#0a0a0a',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:'#e8e8e8',boxWidth:12,padding:12}},tooltip:{callbacks:{label:(c)=>`${c.label}: ${c.raw} kitöltő`}}}}});
+}
+function renderRows(){document.getElementById('rows').innerHTML=data.slice().reverse().slice(0,40).map(d=>`<tr><td>${(d.timestamp||'').replace('T',' ').slice(0,16)}</td><td>${d.profile||''}</td><td>${val(d,'comp')??''}</td><td>${val(d,'calib')??''}</td><td>${val(d,'verify')??''}</td><td>${val(d,'eth')??''}</td><td>${d.source_page?new URL(d.source_page).hostname:''}</td></tr>`).join('')||'<tr><td colspan="7">Még nincs beérkezett kitöltés.</td></tr>'}
+function init(){if(!configured()){setStatus(false,'Firebase nincs beállítva — live követés nem aktív.');data=JSON.parse(localStorage.getItem('aiTrustIndexResults')||'[]');renderAll();return}try{firebase.initializeApp(firebaseConfig);const db=firebase.database();setStatus(true,'Élő kapcsolat aktív · várakozás kitöltésekre');db.ref('aiTrustIndex/results').limitToLast(500).on('value',snap=>{const obj=snap.val()||{};data=Object.entries(obj).map(([id,v])=>({id,...v})).sort((a,b)=>String(a.timestamp||'').localeCompare(String(b.timestamp||'')));setStatus(true,`Élő kapcsolat aktív · ${data.length} kitöltés betöltve`);renderAll()},err=>{setStatus(false,'Firebase olvasási hiba: '+err.message);renderAll()})}catch(e){setStatus(false,'Firebase kapcsolódási hiba: '+e.message);renderAll()}}
+function exportJSON(){download('ai_trust_live_export.json',JSON.stringify(data,null,2),'application/json')}
+function exportCSV(){const head=['timestamp','profile',...Object.keys(dims),'answers','source_page'];const rows=[head.join(',')].concat(data.map(d=>head.map(h=>`"${String(h in dims?val(d,h):(d[h]??'')).replaceAll('"','""')}"`).join(',')));download('ai_trust_live_export.csv',rows.join('\n'),'text/csv')}
+function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function clearLocalOnly(){localStorage.removeItem('aiTrustIndexResults'); if(!configured()){data=[];renderAll()}}
+init();
+</script>
+</body>
+</html>
